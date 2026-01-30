@@ -1,10 +1,10 @@
-# 1.项目的基本结构
+# 1.项目的基本结构  
  base.ipynb → bpe的接口设计
  basic.ipynb → bpe算法的核心实现
  regex.ipynb → 带预处理的核心实现
  gpt4.ipynb → 借助tiktoken实现的一个生产级tokenizer
 
-# 2.编码的理解
+# 2.编码的理解  
 ch = '🌞'  这个字符的 Unicode 码点是 U+1F31E，编码为 UTF-8 需要 4 个字节
 print(ch.encode("utf-8"))
 打印结果：b'\xf0\x9f\x8c\x9e'
@@ -126,7 +126,8 @@ print(f"\n使用 int.from_bytes: {codepoint}")  # 4036003102（注意：这是4�
 print(f"需要正确解码才能得到 Unicode 码点")
 ```
 
-# 3.为什么tokennizer要处理一些自定义的字符
+# 3.为什么tokennizer要处理一些自定义的字符  
+
 在regex.ipynb当中有一个存储special_tokens的集合，在gpt4.ipynb当中定义一部分
 GPT4_SPECIAL_TOKENS = {
     '<|endoftext|>': 100257,
@@ -170,3 +171,70 @@ suffix = """return 'done'
 fim_text = f"<|fim_prefix|>{prefix}<|fim_suffix|>{suffix}<|fim_middle|>{middle}"
 
 **大模型是怎么识别这种模式**
+很简单！因为在训练的时候，大模型看了很多这种结构的代码
+```python
+code = """
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+"""
+
+# ============ 随机切分成 FIM 格式 ============
+import random
+
+def create_fim_example(text):
+    # 随机选择两个切分点
+    length = len(text)
+    pos1 = random.randint(0, length)
+    pos2 = random.randint(pos1, length)
+    
+    prefix = text[:pos1]
+    middle = text[pos1:pos2]
+    suffix = text[pos2:]
+    
+    # 重新排列
+    fim_text = f"<|fim_prefix|>{prefix}<|fim_suffix|>{suffix}<|fim_middle|>{middle}"
+    return fim_text
+
+# 生成训练样本
+for _ in range(5):
+    example = create_fim_example(code)
+    print("=" * 50)
+    print(example)
+```
+
+可能的输出：
+```
+==================================================
+<|fim_prefix|>
+def factorial(n):
+    if n <= 1:
+<|fim_suffix|>
+    return n * factorial(n - 1)
+
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+<|fim_middle|>
+        return 1
+
+==================================================
+<|fim_prefix|>
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+def fib<|fim_suffix|>(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+<|fim_middle|>onacci
+```
