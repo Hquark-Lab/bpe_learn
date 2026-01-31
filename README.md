@@ -1,12 +1,12 @@
 # 1.项目的基本结构  
- base.ipynb → bpe的接口设计
- basic.ipynb → bpe算法的核心实现
- regex.ipynb → 带预处理的核心实现
- gpt4.ipynb → 借助tiktoken实现的一个生产级tokenizer
+ base.ipynb → bpe的接口设计  
+ basic.ipynb → bpe算法的基本实现  
+ regex.ipynb → 带预处理的核心实现  
+ gpt4.ipynb → 借助tiktoken实现的一个生产级tokenizer  
 
 # 2.编码的理解  
-ch = '🌞'  这个字符的 Unicode 码点是 U+1F31E，编码为 UTF-8 需要 4 个字节
-print(ch.encode("utf-8"))
+ch = '🌞'  这个字符的 Unicode 码点是 U+1F31E，编码为 UTF-8 需要 4 个字节   
+print(ch.encode("utf-8"))    
 打印结果：b'\xf0\x9f\x8c\x9e'
 
 ch = '🌞'
