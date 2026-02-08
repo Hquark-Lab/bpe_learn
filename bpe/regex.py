@@ -31,7 +31,7 @@ class RegexTokenizer(Tokenizer):
 
         ids = [list(ch.encode("utf-8")) for ch in text_chunks]
 
-        # 这里的逻辑和basic.py今本相同
+        # 这里的逻辑和basic.py基本相同
         merges = {}  # (int, int) -> int
         vocab = {idx: bytes([idx]) for idx in range(256)}  # idx -> bytes
         for i in range(num_merges):
